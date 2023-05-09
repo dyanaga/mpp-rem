@@ -140,7 +140,7 @@ public class DataGenerationService {
         }
         jdbcTemplate.batchUpdate(sql, offers);
 
-        sql = "INSERT INTO review (revoew_id, stars, review, timestamp, user_id) VALUES (?, ?, ?, ?, ?)";
+        sql = "INSERT INTO review (review_id, stars, review, timestamp, user_id) VALUES (?, ?, ?, ?, ?)";
 
         List<Object[]> reviews = new ArrayList<>();
         Review review = new Review();
