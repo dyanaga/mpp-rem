@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
+	<!-- FILE Appender -->
+	<property name="LOG_FILE" value="./logs/rem.log"/>
+	<springProperty name="socket.appender.host" source="logging.logstash.socket.appender.host"/>
+	<springProperty name="socket.appender.port" source="logging.logstash.socket.appender.port"/>
+
+	<appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_FILE}</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<!-- rollover every hour -->
+			<fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd-HH}.%i.log</fileNamePattern>
+			<maxFileSize>100MB</maxFileSize>
+			<maxHistory>720</maxHistory> <!--in hours = 30 days-->
+			<totalSizeCap>20GB</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %level %logger{0}.%M:%L - [%X{request-info} session-id=%X{session-id} loginId=%X{login-id}] - %msg%n</pattern>
+		</encoder>
+	</appender>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Appenders log level -->
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ROLLING" />
+	</root>
+	<!-- Component log level -->
+	<logger name="org.springframework" level="INFO"/>
+	<jmxConfigurator/>
+</configuration>

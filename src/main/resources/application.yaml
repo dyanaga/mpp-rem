@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: rem
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: update
+
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 1000
+    open-in-view: true
+  datasource:
+    url: jdbc:postgresql://cluj.olahistvan.com:5432/rem
+    username: rem
+    password: rem
+  sql:
+    init:
+      platform: postgres
+
+server:
+  servlet:
+    context-path: /rem-be/api/
+  port:
+    8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+  server:
+    port: 8079
+
+converters:
+  password-encryptor:
+    secret: "KEBvjE/gcTojFBRKAydWzl6WVbrCXrLE"
+
+logging:
+  level:
+    com:
+      dianagrigore:
+        root: DEBUG
+        rem: DEBUG
+security:
+  issuer: REM-BE
+  admin-enabled: true
+  admin-user-id: admin
+  admin-password: admin
+  token-ttl: 8600
+  refresh-token-ttl: 17200
+  secret: DpvcUsDYAoruufXUvDqPJUcMlzzmiFzEeZGTUzrBsPTCYoqjRDNeArouvscwvTTFTJdfGeSmYehVxLoxLedrrPefTqiFImunPwgCuSxisCfQZbbfHEqLJbNkqtxvVZnfPokRykBVSJRPvtWTwIqplFMuLyDmZNtnAESBcSBRXKfOflrvXzzmJdlRAPsRvpJZpdOZMWMBMeayBBPYDqGSbtIAPhOhSgLainFxbVwhXXajFUcLuDYYXkQsLmDJXsyM
