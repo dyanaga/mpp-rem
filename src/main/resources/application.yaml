@@ -5,12 +5,13 @@ spring:
     show-sql: false
     hibernate:
       ddl-auto: update
-
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         jdbc:
           batch_size: 1000
+        connection:
+          pool_size: 11
     open-in-view: true
   datasource:
     url: jdbc:postgresql://cluj.olahistvan.com:5432/rem

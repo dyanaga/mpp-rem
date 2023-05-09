@@ -12,18 +12,23 @@ import com.dianagrigore.rem.repository.ReviewRepository;
 import com.dianagrigore.rem.repository.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
 
 @Service
 @Slf4j
@@ -42,15 +47,18 @@ public class DataGenerationService {
     private final AgentListingRepository agentListingRepository;
     private final ListingRepository listingRepository;
     private final Faker faker = new Faker();
+    private final ApplicationContext applicationContext;
+
 
     public DataGenerationService(UserRepository userRepository, ReviewRepository reviewRepository, OfferRepository offerRepository, AgentListingRepository agentListingRepository
-            , ListingRepository listingRepository, DataSource dataSource) {
+            , ListingRepository listingRepository, DataSource dataSource, ApplicationContext applicationContext) {
         this.userRepository = userRepository;
         this.reviewRepository = reviewRepository;
         this.offerRepository = offerRepository;
         this.agentListingRepository = agentListingRepository;
         this.listingRepository = listingRepository;
         this.dataSource = dataSource;
+        this.applicationContext = applicationContext;
     }
 
     @PostConstruct
@@ -72,9 +80,28 @@ public class DataGenerationService {
     }
 
     public void millions() {
-        for (int i = 1; i < 1000; i++) {
-            generate((i - 1) * 1000);
-            log.info("{}.{}%", i / 100, i % 100);
+        disableAll();
+        try {
+            ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) applicationContext.getBean("taskExecutor");
+            for (int i = 0; i < 100; i++) {
+                CountDownLatch latch = new CountDownLatch(10);
+                for (int j = 0; j < 10; j++) {
+                    int index = i * 10 + j;
+                    executor.execute(() -> {
+                        try {
+                            generate(index * 1000);
+                        } finally {
+                            latch.countDown();
+                        }
+                    });
+                }
+                latch.await();
+                log.info("{}.{}%", (i + 1), (i + 1) % 10 * 10);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            enableAll();
         }
     }
 
@@ -136,6 +163,7 @@ public class DataGenerationService {
             int agent = faker.number().numberBetween(0, 999);
             offer.setComment(faker.chuckNorris().fact());
             offer.setPrice(faker.number().numberBetween(1000, 300000));
+            offer.setTimestamp(new Date());
             offers.add(new Object[]{UUID.randomUUID().toString(), offer.getPrice(), offer.getComment(), offer.getTimestamp(), listings.get(listing_index)[0], users.get(agent)[0]});
         }
         jdbcTemplate.batchUpdate(sql, offers);
@@ -148,9 +176,26 @@ public class DataGenerationService {
             int agent = faker.number().numberBetween(0, 999);
             review.setReview(faker.elderScrolls().quote());
             review.setStars(faker.number().numberBetween(1, 5));
+            review.setTimestamp(new Date());
             reviews.add(new Object[]{UUID.randomUUID().toString(), review.getStars(), review.getReview(), review.getTimestamp(), users.get(agent)[0]});
         }
         jdbcTemplate.batchUpdate(sql, reviews);
+    }
+
+    private void disableAll() {
+        jdbcTemplate.execute("ALTER TABLE app_user DISABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE listing DISABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE agent_listing DISABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE offer DISABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE review DISABLE TRIGGER ALL");
+    }
+
+    private void enableAll() {
+        jdbcTemplate.execute("ALTER TABLE app_user ENABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE listing ENABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE agent_listing ENABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE offer ENABLE TRIGGER ALL");
+        jdbcTemplate.execute("ALTER TABLE review ENABLE TRIGGER ALL");
     }
 
 }
