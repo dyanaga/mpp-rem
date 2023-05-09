@@ -1,6 +1,5 @@
 package com.dianagrigore.rem.service;
 
-import com.dianagrigore.rem.model.AgentListing;
 import com.dianagrigore.rem.model.Listing;
 import com.dianagrigore.rem.model.Offer;
 import com.dianagrigore.rem.model.Review;
@@ -13,14 +12,18 @@ import com.dianagrigore.rem.repository.ReviewRepository;
 import com.dianagrigore.rem.repository.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import javax.sql.DataSource;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -30,6 +33,9 @@ public class DataGenerationService {
             "Gheorgheni");
     private final static Random random = new Random();
 
+    private final DataSource dataSource;
+
+    private JdbcTemplate jdbcTemplate;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final OfferRepository offerRepository;
@@ -38,12 +44,18 @@ public class DataGenerationService {
     private final Faker faker = new Faker();
 
     public DataGenerationService(UserRepository userRepository, ReviewRepository reviewRepository, OfferRepository offerRepository, AgentListingRepository agentListingRepository
-            , ListingRepository listingRepository) {
+            , ListingRepository listingRepository, DataSource dataSource) {
         this.userRepository = userRepository;
         this.reviewRepository = reviewRepository;
         this.offerRepository = offerRepository;
         this.agentListingRepository = agentListingRepository;
         this.listingRepository = listingRepository;
+        this.dataSource = dataSource;
+    }
+
+    @PostConstruct
+    private void init() {
+        jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     public void cleanup() {
@@ -57,11 +69,9 @@ public class DataGenerationService {
     public void batch() {
         cleanup();
         generate(0);
-
     }
 
     public void millions() {
-//        cleanup();
         for (int i = 1; i < 1000; i++) {
             generate((i - 1) * 1000);
             log.info("{}.{}%", i / 100, i % 100);
@@ -70,23 +80,25 @@ public class DataGenerationService {
 
     @Transactional
     public void generate(int base) {
-
         int count = 1000;
         int phoneBase = 700000000;
-        List<User> users = new ArrayList<>();
+        String sql = "INSERT INTO app_user (user_id, name, email, password, phone_number, type) VALUES (?, ?, ?, ?, ?, ?)";
+        List<Object[]> users = new ArrayList<>();
+        User user = new User();
         for (int i = 0; i < count; i++) {
-            User user = new User();
             user.setName(faker.name().fullName());
             user.setEmail(faker.name().username() + (base + i) + "@gmail.com");
-            user.setPassword("Strong123#");
+            user.setPassword("nJ8IjYf4+Iz4SFkkYqaRhw==");
             user.setPhoneNumber("0" + (phoneBase + base + i));
             user.setType(UserType.DIRECTOR);
-            users.add(user);
+            users.add(new Object[]{UUID.randomUUID().toString(), user.getName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getType().toString()});
         }
-        List<User> savedUsers = userRepository.saveAll(users);
-        List<Listing> listings = new ArrayList<>();
+        jdbcTemplate.batchUpdate(sql, users);
+
+        sql = "INSERT INTO listing (listing_id, name, address, rooms, description, size, neighbourhood, suggested_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        List<Object[]> listings = new ArrayList<>();
+        Listing listing = new Listing();
         for (int i = 0; i < count; i++) {
-            Listing listing = new Listing();
             listing.setSuggestedPrice(faker.number().numberBetween(10000, 200000));
             listing.setRooms(faker.number().numberBetween(1, 5));
             listing.setDescription(faker.backToTheFuture().quote());
@@ -94,11 +106,14 @@ public class DataGenerationService {
             listing.setSize(faker.number().numberBetween(20, 120));
             listing.setNeighbourhood(neighbourhood.get(faker.number().numberBetween(0, 9)));
             listing.setAddress(faker.address().fullAddress());
-            listings.add(listing);
+            listings.add(new Object[]{UUID.randomUUID().toString(), listing.getName(), listing.getAddress(), listing.getRooms(), listing.getDescription(), listing.getSize(),
+                    listing.getNeighbourhood(), listing.getSuggestedPrice()});
         }
+        jdbcTemplate.batchUpdate(sql, listings);
 
-        List<Listing> savedListings = listingRepository.saveAll(listings);
-        List<AgentListing> agentListings = new ArrayList<>();
+        List<Object[]> agentListings = new ArrayList<>();
+        sql = "INSERT INTO agent_listing (listing_id, user_id) VALUES (?, ?)";
+
         for (int i = 0; i < count; i++) {
             Set<Integer> numbers = new HashSet<>();
             while (numbers.size() < 10) {
@@ -107,42 +122,35 @@ public class DataGenerationService {
             }
             List<Integer> randomUsers = new ArrayList<>(numbers);
             for (int j = 0; j < 10; j++) {
-                AgentListing agentListing = new AgentListing();
-
-                agentListing.setListingId(savedListings.get(i).getListingId());
-                agentListing.setListing(savedListings.get(i));
-                agentListing.setUserId(savedUsers.get(randomUsers.get(j)).getUserId());
-                agentListing.setUser(savedUsers.get(randomUsers.get(j)));
-                agentListings.add(agentListing);
+                agentListings.add(new Object[]{listings.get(i)[0], users.get(randomUsers.get(j))[0]});
 
             }
         }
-        agentListingRepository.saveAll(agentListings);
+        jdbcTemplate.batchUpdate(sql, agentListings);
 
-        List<Offer> offers = new ArrayList<>();
+        sql = "INSERT INTO offer (offer_id, price, comment, timestamp, listing_id, user_id) VALUES (?, ?, ?, ?, ?, ?)";
+        List<Object[]> offers = new ArrayList<>();
+        Offer offer = new Offer();
         for (int i = 0; i < count; i++) {
-            Offer offer = new Offer();
-            int listing = faker.number().numberBetween(0, 999);
+            int listing_index = faker.number().numberBetween(0, 999);
             int agent = faker.number().numberBetween(0, 999);
-            offer.setListingId(savedListings.get(listing).getListingId());
-            offer.setUserId(savedUsers.get(agent).getUserId());
             offer.setComment(faker.chuckNorris().fact());
             offer.setPrice(faker.number().numberBetween(1000, 300000));
-            offers.add(offer);
+            offers.add(new Object[]{UUID.randomUUID().toString(), offer.getPrice(), offer.getComment(), offer.getTimestamp(), listings.get(listing_index)[0], users.get(agent)[0]});
         }
-        offerRepository.saveAll(offers);
-        List<Review> reviews = new ArrayList<>();
+        jdbcTemplate.batchUpdate(sql, offers);
+
+        sql = "INSERT INTO review (revoew_id, stars, review, timestamp, user_id) VALUES (?, ?, ?, ?, ?)";
+
+        List<Object[]> reviews = new ArrayList<>();
+        Review review = new Review();
         for (int i = 0; i < count; i++) {
-            Review review = new Review();
             int agent = faker.number().numberBetween(0, 999);
-            review.setUser(savedUsers.get(agent));
-            review.setUserId(savedUsers.get(agent).getUserId());
             review.setReview(faker.elderScrolls().quote());
             review.setStars(faker.number().numberBetween(1, 5));
-            reviews.add(review);
+            reviews.add(new Object[]{UUID.randomUUID().toString(), review.getStars(), review.getReview(), review.getTimestamp(), users.get(agent)[0]});
         }
-        reviewRepository.saveAll(reviews);
-
+        jdbcTemplate.batchUpdate(sql, reviews);
     }
 
 }

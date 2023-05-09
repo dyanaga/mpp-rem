@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://172.17.0.1:5432/rem
+    username: postgres
+    password: example
+
+logging:
+  level:
+    com:
+      dianagrigore:
+        root: DEBUG
+        rem: DEBUG
