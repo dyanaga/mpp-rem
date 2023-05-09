@@ -12,7 +12,6 @@ import com.dianagrigore.rem.repository.ReviewRepository;
 import com.dianagrigore.rem.repository.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -42,22 +41,10 @@ public class DataGenerationService {
     private final DataSource dataSource;
 
     private JdbcTemplate jdbcTemplate;
-    private final UserRepository userRepository;
-    private final ReviewRepository reviewRepository;
-    private final OfferRepository offerRepository;
-    private final AgentListingRepository agentListingRepository;
-    private final ListingRepository listingRepository;
     private final Faker faker = new Faker();
     private final ApplicationContext applicationContext;
 
-
-    public DataGenerationService(UserRepository userRepository, ReviewRepository reviewRepository, OfferRepository offerRepository, AgentListingRepository agentListingRepository
-            , ListingRepository listingRepository, DataSource dataSource, ApplicationContext applicationContext) {
-        this.userRepository = userRepository;
-        this.reviewRepository = reviewRepository;
-        this.offerRepository = offerRepository;
-        this.agentListingRepository = agentListingRepository;
-        this.listingRepository = listingRepository;
+    public DataGenerationService(DataSource dataSource, ApplicationContext applicationContext) {
         this.dataSource = dataSource;
         this.applicationContext = applicationContext;
     }
@@ -68,18 +55,22 @@ public class DataGenerationService {
     }
 
     public void cleanup() {
-        reviewRepository.deleteAllInBatch();
-        offerRepository.deleteAllInBatch();
-        agentListingRepository.deleteAllInBatch();
-        listingRepository.deleteAllInBatch();
-        userRepository.deleteAllInBatch();
+        disableAll();
+        try {
+            jdbcTemplate.execute("TRUNCATE TABLE review");
+            jdbcTemplate.execute("TRUNCATE TABLE offer");
+            jdbcTemplate.execute("TRUNCATE TABLE agent_listing");
+            jdbcTemplate.execute("TRUNCATE TABLE listing CASCADE");
+            jdbcTemplate.execute("TRUNCATE TABLE app_user CASCADE");
+        } finally {
+            enableAll();
+        }
     }
 
     @Transactional
     public void batch() {
         generate(0);
     }
-
 
     @Transactional
     @Async("asyncExecutor")
