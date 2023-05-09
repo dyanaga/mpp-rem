@@ -21,18 +21,12 @@ pipeline {
       }
     }
 
-    stage('Dockerizing') {
-      steps {
-        sh "docker build -t ${env.DOCKER_IMAGE} ."
-      }
-    }
-
     stage('Deployment') {
       steps {
         script {
             def docker_image = "docker.olahistvan.com/${env.DOCKER_USER}/${env.DOCKER_IMAGE}:${env.image_version}"
             if (env.BRANCH_NAME == 'main') {
-                sh "docker restart ${env.CONTAINER}"
+                sh "docker-compose up -d ${env.CONTAINER}"
             } else {
                 def userInput = false
                 try {
@@ -55,7 +49,7 @@ pipeline {
                 echo "Selected deployment option: ${userInput}"
 
                 if(userInput) {
-                    sh "docker restart ${env.CONTAINER}"
+                    sh "docker-compose up -d ${env.CONTAINER}"
                 }
             }
         }

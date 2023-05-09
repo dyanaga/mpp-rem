@@ -2,6 +2,7 @@ version: '3'
 
 services:
   rem-be:
+    container_name: rem-be:latest
     build: .
     ports:
       - "8080:8080"
