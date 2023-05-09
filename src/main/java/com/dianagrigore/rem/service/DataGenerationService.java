@@ -15,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,11 +75,14 @@ public class DataGenerationService {
         userRepository.deleteAllInBatch();
     }
 
+    @Transactional
     public void batch() {
-        cleanup();
         generate(0);
     }
 
+
+    @Transactional
+    @Async("asyncExecutor")
     public void millions() {
         disableAll();
         try {
@@ -96,7 +100,7 @@ public class DataGenerationService {
                     });
                 }
                 latch.await();
-                log.info("{}.{}%", (i + 1), (i + 1) % 10 * 10);
+                log.info("{}%", (i + 1));
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -105,8 +109,7 @@ public class DataGenerationService {
         }
     }
 
-    @Transactional
-    public void generate(int base) {
+    private void generate(int base) {
         int count = 1000;
         int phoneBase = 700000000;
         String sql = "INSERT INTO app_user (user_id, name, email, password, phone_number, type) VALUES (?, ?, ?, ?, ?, ?)";
