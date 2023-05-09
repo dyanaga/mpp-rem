@@ -25,7 +25,7 @@ pipeline {
         script {
             def docker_image = "docker.olahistvan.com/${env.DOCKER_USER}/${env.DOCKER_IMAGE}:${env.image_version}"
             if (env.BRANCH_NAME == 'main') {
-                sh "docker-compose up -d"
+                sh "docker-compose up -d --force-recreate --build"
             } else {
                 def userInput = false
                 try {
@@ -48,7 +48,7 @@ pipeline {
                 echo "Selected deployment option: ${userInput}"
 
                 if(userInput) {
-                    sh "docker-compose up -d"
+                    sh "docker-compose up -d --force-recreate --build"
                 }
             }
         }
