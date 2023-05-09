@@ -1,7 +1,6 @@
 pipeline {
   agent any
   environment {
-    CONTAINER = 'rem-be'
     DOCKER_IMAGE = 'rem-be:latest'
   }
   parameters {
@@ -26,7 +25,7 @@ pipeline {
         script {
             def docker_image = "docker.olahistvan.com/${env.DOCKER_USER}/${env.DOCKER_IMAGE}:${env.image_version}"
             if (env.BRANCH_NAME == 'main') {
-                sh "docker-compose up -d ${env.CONTAINER}"
+                sh "docker-compose up -d"
             } else {
                 def userInput = false
                 try {
@@ -49,7 +48,7 @@ pipeline {
                 echo "Selected deployment option: ${userInput}"
 
                 if(userInput) {
-                    sh "docker-compose up -d ${env.CONTAINER}"
+                    sh "docker-compose up -d"
                 }
             }
         }
