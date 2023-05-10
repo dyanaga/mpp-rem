@@ -1,7 +1,5 @@
 pipeline {
   agent any
-  environment {
-  }
   parameters {
     string(name: 'image_version', defaultValue: 'undefined')
   }

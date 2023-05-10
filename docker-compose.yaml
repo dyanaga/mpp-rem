@@ -13,3 +13,8 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - /home/ec2-user/containers/rem-be/logs:/logs
+    networks:
+      - mynetwork
+networks:
+  mynetwork:
+    external: true
