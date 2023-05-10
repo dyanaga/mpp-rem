@@ -1,7 +1,6 @@
 pipeline {
   agent any
   environment {
-    DOCKER_IMAGE = 'rem-be:latest'
   }
   parameters {
     string(name: 'image_version', defaultValue: 'undefined')
@@ -23,7 +22,6 @@ pipeline {
     stage('Deployment') {
       steps {
         script {
-            def docker_image = "docker.olahistvan.com/${env.DOCKER_USER}/${env.DOCKER_IMAGE}:${env.image_version}"
             if (env.BRANCH_NAME == 'main') {
                 sh "docker-compose up -d --force-recreate --build"
             } else {
