@@ -15,8 +15,15 @@
 	<description>Real Estate manager</description>
 	<properties>
 		<java.version>17</java.version>
+		<project.packaging>jar</project.packaging>
 	</properties>
+	<packaging>${project.packaging}</packaging>
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jdbc</artifactId>
@@ -103,5 +110,18 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<profiles>
+		<profile>
+			<id>warPackaging</id>
+			<activation>
+				<property>
+					<name>WAR</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<properties>
+				<project.packaging>war</project.packaging>
+			</properties>
+		</profile>
+	</profiles>
 </project>
