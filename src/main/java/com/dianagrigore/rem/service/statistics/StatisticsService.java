@@ -40,7 +40,9 @@ public class StatisticsService {
             Listing listing = listingRepository.findById(listingsByOfferCount.getListingId()).orElseThrow(() -> new BaseException("Impossible."));
             Map<String, Object> map = new HashMap<>();
             map.put("count", listingsByOfferCount.getCount());
-            map.put("listing", listingDtoBasicMapper.convertSource(listing));
+            map.put("listingId", listing.getListingId());
+            map.put("name", listing.getName());
+            map.put("address", listing.getAddress());
             result.add(map);
         });
         return result;
