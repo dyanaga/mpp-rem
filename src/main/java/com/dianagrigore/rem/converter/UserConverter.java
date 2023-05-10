@@ -1,10 +1,13 @@
 package com.dianagrigore.rem.converter;
 
 
+import static java.util.Objects.nonNull;
+
 import com.dianagrigore.rem.dto.OfferDto;
 import com.dianagrigore.rem.dto.UserDto;
 import com.dianagrigore.rem.model.Offer;
 import com.dianagrigore.rem.model.User;
+import com.dianagrigore.rem.utils.expand.ExpandBuilder;
 import com.dianagrigore.rem.utils.expand.ExpandableFields;
 import com.dianagrigore.rem.web.converter.BasicMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +27,8 @@ public class UserConverter extends BasicMapper<User, UserDto> {
     @Override
     public UserDto convertSource(User user, String expand) {
         UserDto userDto = objectMapper.convertValue(user, UserDto.class);
-        if(expand.contains(ExpandableFields.OFFERS.getStringValue())) {
+        ExpandBuilder expandBuilder = ExpandBuilder.of(expand);
+        if(expandBuilder.contains(ExpandableFields.OFFERS)) {
             userDto.setOffers(offerConverter.convertSource(user.getOffers()));
         }
         return userDto;
