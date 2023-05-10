@@ -4,6 +4,7 @@ services:
   rem_be:
     image: rem_be
     container_name: rem_be
+    restart: unless-stopped
     build: .
     ports:
       - "8090:8080"
@@ -13,8 +14,3 @@ services:
       - SPRING_PROFILES_ACTIVE=prod
     volumes:
       - /home/ec2-user/containers/rem-be/logs:/logs
-    networks:
-      - mynetwork
-networks:
-  mynetwork:
-    external: true
