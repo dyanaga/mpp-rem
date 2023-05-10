@@ -77,7 +77,7 @@ public class DataGenerationService {
     @Transactional
     @Async("asyncExecutor")
     public void millions() {
-        disableAll();
+//        disableAll();
         try {
             ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) applicationContext.getBean("taskExecutor");
             for (int i = 0; i < 100; i++) {
@@ -87,7 +87,7 @@ public class DataGenerationService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } finally {
-            enableAll();
+//            enableAll();
         }
     }
 
