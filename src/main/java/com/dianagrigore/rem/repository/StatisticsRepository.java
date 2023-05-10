@@ -19,7 +19,7 @@ public interface StatisticsRepository extends JpaRepository<Listing, String> {
     @Query("select new com.dianagrigore.rem.model.statistics.ListingsPerNeighbourhood(neighbourhood, COUNT(neighbourhood)) from listing group by neighbourhood")
     List<ListingsPerNeighbourhood> getListingsPerNeighbourhood();
 
-    @Query("select new com.dianagrigore.rem.model.statistics.ListingsByOfferCount(count(listingId), listingId) from AgentListing group by listingId order by count(listingId) desc ")
+    @Query("select new com.dianagrigore.rem.model.statistics.ListingsByOfferCount(count(listingId), listingId) from offer group by listingId order by count(listingId) desc ")
     List<ListingsByOfferCount> getTopListingsByOfferCount(Pageable pageable);
 
 }
