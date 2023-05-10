@@ -1,5 +1,7 @@
 package com.dianagrigore.rem.service.listing.impl;
 
+import static java.util.Objects.nonNull;
+
 import com.dianagrigore.rem.dto.ListingDto;
 import com.dianagrigore.rem.dto.pages.ListingPage;
 import com.dianagrigore.rem.exception.BaseException;
@@ -16,7 +18,9 @@ import com.dianagrigore.rem.service.listing.ListingService;
 import com.dianagrigore.rem.utils.expand.ExpandableFields;
 import com.dianagrigore.rem.web.converter.BasicMapper;
 import com.dianagrigore.rem.web.filter.FieldFilter;
+import com.dianagrigore.rem.web.filter.FilterOperation;
 import com.dianagrigore.rem.web.filter.FilterUtils;
+import com.dianagrigore.rem.web.filter.specifications.IntegerSpecifications;
 import com.dianagrigore.rem.web.filter.specifications.StringSpecifications;
 import com.dianagrigore.rem.web.paging.PageUtils;
 import org.slf4j.Logger;
@@ -33,12 +37,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ListingServiceImpl implements ListingService {
     private static final Logger logger = LoggerFactory.getLogger(ListingServiceImpl.class);
 
-    private static final List<String> FIND_ALLOWED_STRING_FILTERS = List.of("name", "address", "description", "neighbourhood");
+    private static final List<String> FIND_ALLOWED_STRING_FILTERS = List.of("name", "address", "description", "neighbourhood","listingId");
+    private static final List<String> FIND_ALLOWED_INT_FILTERS = List.of("rooms");
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
     private final AgentListingRepository agentListingRepository;
@@ -46,8 +53,8 @@ public class ListingServiceImpl implements ListingService {
     private final BasicMapper<Listing, ListingDto> basicMapper;
     private final SecurityService securityService;
 
-    public ListingServiceImpl(ListingRepository listingRepository, UserRepository userRepository, AgentListingRepository agentListingRepository,
-            OfferRepository offerRepository, BasicMapper<Listing, ListingDto> basicMapper, SecurityService securityService) {
+    public ListingServiceImpl(ListingRepository listingRepository, UserRepository userRepository, AgentListingRepository agentListingRepository, OfferRepository offerRepository,
+            BasicMapper<Listing, ListingDto> basicMapper, SecurityService securityService) {
         this.listingRepository = listingRepository;
         this.userRepository = userRepository;
         this.agentListingRepository = agentListingRepository;
@@ -74,11 +81,21 @@ public class ListingServiceImpl implements ListingService {
     @Override
     public ListingPage findListings(@Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize, @Nullable String sort, @Nullable String expand) {
         logger.debug("Find listings called with parameters: filter=[{}], page=[{}], pageSize=[{}], sort=[{}], expand=[{}]", filter, page, pageSize, sort, expand);
+        if (nonNull(sort) && sort.contains("price")) {
+            sort = sort.replace("price", "suggestedPrice");
+        }
         Pageable pageable = PageUtils.getPageable(page, pageSize, sort, "+name");
         Map<String, FieldFilter> fieldFiltersMap = FilterUtils.getFieldFiltersMap(filter);
+        if (fieldFiltersMap.containsKey("agent")) {
+            FieldFilter agent = fieldFiltersMap.get("agent");
+            fieldFiltersMap.remove("agent");
+            String listings = agentListingRepository.findAllByUserId(agent.getValue()).stream().map(AgentListing::getListingId).collect(Collectors.joining(","));
+            fieldFiltersMap.put("listingId", new FieldFilter().setValue(listings).setFilterOperation(FilterOperation.IN).setFieldName("listingId"));
+        }
 
         List<Specification<Listing>> specifications = new ArrayList<>();
         StringSpecifications.appendSpecifications(specifications, fieldFiltersMap, FIND_ALLOWED_STRING_FILTERS);
+        IntegerSpecifications.appendSpecifications(specifications, fieldFiltersMap, FIND_ALLOWED_INT_FILTERS);
 
         Specification<Listing> specification = specifications.stream().reduce(Specification::and).orElse(null);
 
@@ -171,18 +188,14 @@ public class ListingServiceImpl implements ListingService {
         User user = getUserOrThrow(agentId);
 
         List<AgentListing> users = listing.getUsers();
-        Optional<AgentListing> maybeAgentListing = users.stream()
-                .filter(agentListing -> agentId.equals(agentListing.getUser().getUserId()))
-                .findFirst();
+        Optional<AgentListing> maybeAgentListing = users.stream().filter(agentListing -> agentId.equals(agentListing.getUser().getUserId())).findFirst();
         if (maybeAgentListing.isEmpty()) {
             throw new BaseException("User not enrolled.");
         }
 
         agentListingRepository.delete(maybeAgentListing.get());
         logger.debug("User with id {} successfully removed to listing {}.", user.getUserId(), listing.getListingId());
-        List<AgentListing> agentListings = users.stream()
-                .filter(agentListing -> !agentId.equals(agentListing.getUser().getUserId()))
-                .toList();
+        List<AgentListing> agentListings = users.stream().filter(agentListing -> !agentId.equals(agentListing.getUser().getUserId())).toList();
         listing.setUsers(agentListings);
         return basicMapper.convertSource(listing, ExpandableFields.USERS.getStringValue());
     }

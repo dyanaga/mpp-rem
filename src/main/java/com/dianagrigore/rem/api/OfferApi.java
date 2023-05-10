@@ -28,6 +28,7 @@ public interface OfferApi {
     String USERS_OFFERS = "/users/{user-id}/offers";
     String GET_OFFER = "/offers/{offer-id}";
     String DELETE_OFFER = "/offers/{offer-id}";
+    String DELETE_OFFER_USER = "/users/{user-id}/offers/{offer-id}";
 
     /**
      * Creates a new offer.
@@ -138,9 +139,9 @@ public interface OfferApi {
     @ApiOperation(value = "Deletes singular offer", nickname = "deactivateOffer", notes = "Endpoint used to deactivate a offer.", response = OfferDto.class, tags = {"offers",})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Offer deleted successfully.", response = OfferDto.class), @ApiResponse(code = 400, message = "unexpected error",
             response = ResponseException.class)})
-    @RequestMapping(value = DELETE_OFFER, produces = {"application/json"}, method = RequestMethod.DELETE)
+    @RequestMapping(value = {DELETE_OFFER, DELETE_OFFER_USER}, produces = {"application/json"}, method = RequestMethod.DELETE)
 
-    default OfferDto deleteOffer(@ApiParam(value = "The id of the offer.", required = true) @PathVariable("offer-id") String offerId) {
+    default OfferDto deleteOffer(@ApiParam(value = "The id of the offer.", required = true) @PathVariable("offer-id") String offerId, @PathVariable(value = "user-id", required = false) String userId) {
         return new OfferDto();
     }
 }

@@ -2,8 +2,11 @@ package com.dianagrigore.rem.web.filter.specifications;
 
 import com.dianagrigore.rem.web.exception.CommonUtilsException;
 import com.dianagrigore.rem.web.filter.FieldFilter;
+
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
@@ -28,7 +31,11 @@ public final class StringSpecifications {
     }
 
     public static <T> Specification<T> fieldIn(String fieldName, Collection<String> values) {
-        return ((root, criteriaQuery, criteriaBuilder) -> criteriaBuilder.in(getFieldValue(fieldName, root)).in(values));
+        return ((root, criteriaQuery, criteriaBuilder) -> {
+            Predicate in = getFieldValue(fieldName, root).in(values);
+            criteriaQuery.where(in);
+            return in;
+        });
     }
 
     private static <T> Path<String> getFieldValue(String fieldName, Root<T> root) {

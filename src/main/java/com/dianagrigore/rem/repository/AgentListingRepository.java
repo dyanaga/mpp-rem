@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 public interface AgentListingRepository extends JpaRepository<AgentListing, AgentListingKey>, JpaSpecificationExecutor<AgentListing> {
 
@@ -20,5 +21,7 @@ public interface AgentListingRepository extends JpaRepository<AgentListing, Agen
     @Transactional
     @Query(value = "DELETE FROM AgentListing a WHERE a.userId=:userId")
     void deleteByAgentId(String userId);
+
+    List<AgentListing> findAllByUserId(String userId);
 
 }

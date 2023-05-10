@@ -1,7 +1,6 @@
 package com.dianagrigore.rem.dto;
 
 import com.dianagrigore.rem.model.enums.UserType;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +11,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 @Data
 @Builder
@@ -39,5 +39,7 @@ public class UserDto {
 
     @NotNull
     private UserType type;
+
+    private List<OfferDto> offers;
 
 }
