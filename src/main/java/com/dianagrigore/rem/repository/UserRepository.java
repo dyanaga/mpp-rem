@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
-    @Query(value = "SELECT u FROM app_user u WHERE email=:loginId AND password=:password")
+    @Query(value = "SELECT u FROM app_user u WHERE email=:loginId AND password=:password AND is_active=true")
     List<User> login(@Param("loginId") String loginId, @Param("password") String password);
 
     List<User> findAllByEmail(String email);

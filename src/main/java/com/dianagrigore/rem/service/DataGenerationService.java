@@ -1,18 +1,15 @@
 package com.dianagrigore.rem.service;
 
+import com.dianagrigore.rem.exception.BaseException;
 import com.dianagrigore.rem.model.Listing;
 import com.dianagrigore.rem.model.Offer;
 import com.dianagrigore.rem.model.Review;
 import com.dianagrigore.rem.model.User;
 import com.dianagrigore.rem.model.enums.UserType;
-import com.dianagrigore.rem.repository.AgentListingRepository;
-import com.dianagrigore.rem.repository.ListingRepository;
-import com.dianagrigore.rem.repository.OfferRepository;
-import com.dianagrigore.rem.repository.ReviewRepository;
-import com.dianagrigore.rem.repository.UserRepository;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -69,7 +66,12 @@ public class DataGenerationService {
 
     @Transactional
     public void batch() {
-        generate(0);
+        ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) applicationContext.getBean("taskExecutor");
+        try {
+            multiThreadInserts(executor, 0);
+        } catch (InterruptedException e) {
+            throw new BaseException("Failed to add batch.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Transactional
@@ -79,18 +81,7 @@ public class DataGenerationService {
         try {
             ThreadPoolTaskExecutor executor = (ThreadPoolTaskExecutor) applicationContext.getBean("taskExecutor");
             for (int i = 0; i < 100; i++) {
-                CountDownLatch latch = new CountDownLatch(10);
-                for (int j = 0; j < 10; j++) {
-                    int index = i * 10 + j;
-                    executor.execute(() -> {
-                        try {
-                            generate(index * 1000);
-                        } finally {
-                            latch.countDown();
-                        }
-                    });
-                }
-                latch.await();
+                multiThreadInserts(executor, i);
                 log.info("{}%", (i + 1));
             }
         } catch (InterruptedException e) {
@@ -98,6 +89,21 @@ public class DataGenerationService {
         } finally {
             enableAll();
         }
+    }
+
+    private void multiThreadInserts(ThreadPoolTaskExecutor executor, int i) throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(10);
+        for (int j = 0; j < 10; j++) {
+            int index = i * 10 + j;
+            executor.execute(() -> {
+                try {
+                    generate(index * 1000);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+        latch.await();
     }
 
     private void generate(int base) {

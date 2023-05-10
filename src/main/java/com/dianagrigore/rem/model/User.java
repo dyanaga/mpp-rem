@@ -52,6 +52,8 @@ public class User {
     @JsonProperty(access = WRITE_ONLY)
     private List<AgentListing> listings;
 
+    @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private boolean isActive;
     public String getUserId() {
         return userId;
     }
@@ -106,5 +108,13 @@ public class User {
 
     public void setListings(List<AgentListing> listings) {
         this.listings = listings;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }
