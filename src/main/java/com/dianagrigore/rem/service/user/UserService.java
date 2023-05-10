@@ -1,5 +1,6 @@
 package com.dianagrigore.rem.service.user;
 
+import com.dianagrigore.rem.dto.RegistrationDto;
 import com.dianagrigore.rem.dto.UserDto;
 import com.dianagrigore.rem.dto.pages.UserPage;
 import com.dianagrigore.rem.exception.ResourceNotFoundException;
@@ -7,6 +8,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 /**
  * Service interface for user related operations
@@ -20,6 +22,18 @@ public interface UserService {
      * @return - new created user
      */
     UserDto createUser(@Valid UserDto userToCreate);
+
+
+    /**
+     * Registers a new user.
+     *
+     * @param userToRegister - payload for registering the user
+     * @return - new created user
+     */
+    RegistrationDto registerUser(@Valid UserDto userToRegister);
+
+    UserDto activateUser(@NotNull String userId);
+    void removeOldRegistrations();
 
     /**
      * Search user using a filter and pagination parameters

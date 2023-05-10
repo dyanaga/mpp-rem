@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -22,6 +23,7 @@ import java.util.concurrent.Executor;
 @EnableWebSecurity
 @Configuration
 @EnableAsync
+@EnableScheduling
 public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private final AuthorizationFilter authorizationFilter;
@@ -36,6 +38,8 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(authorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/v1/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/v1/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/v1/register/confirm/**").permitAll()
                 .antMatchers("/actuator/**").permitAll()
                 .antMatchers("/version").permitAll()
                 .anyRequest().authenticated()
@@ -65,6 +69,17 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         executor.setMaxPoolSize(10);
         executor.setQueueCapacity(500);
         executor.setThreadNamePrefix("Async-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "taskExecutor")
+    public Executor taskExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(10);
+        executor.setMaxPoolSize(50);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("Task-");
         executor.initialize();
         return executor;
     }

@@ -1,24 +1,17 @@
 package com.dianagrigore.rem.model;
 
-import org.springframework.data.domain.Persistable;
-
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.Table;
-import java.io.Serializable;
 
 @Table(name = "agent_listing")
 @Entity
 @IdClass(AgentListingKey.class)
-//TODO remove `implements Persistable<AgentListingKey>`
-public class AgentListing implements Persistable<AgentListingKey> {
+public class AgentListing {
 
     @Id
     @Column(name = "listing_id")
@@ -36,8 +29,6 @@ public class AgentListing implements Persistable<AgentListingKey> {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     User user;
 
-
-
     public String getListingId() {
         return listingId;
     }
@@ -53,7 +44,6 @@ public class AgentListing implements Persistable<AgentListingKey> {
     public void setUserId(String userId) {
         this.userId = userId;
     }
-
 
     public Listing getListing() {
         return listing;
@@ -71,15 +61,4 @@ public class AgentListing implements Persistable<AgentListingKey> {
         this.user = user;
     }
 
-    //TODO: remove next 2 lines
-
-    @Override
-    public AgentListingKey getId() {
-        return new AgentListingKey(getUserId(), getListingId());
-    }
-
-    @Override
-    public boolean isNew() {
-        return true;
-    }
 }
