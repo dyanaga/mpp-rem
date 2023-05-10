@@ -132,10 +132,13 @@ public class UserServiceImpl implements UserService {
         List<Registration> allByTimestampBefore = registrationRepository.findAllByTimestampBefore(tenMinutesAgo);
         for (Registration registration : allByTimestampBefore) {
             try {
-                userRepository.deleteById(registration.getUserId());
                 registrationRepository.deleteById(registration.getUserId());
+                userRepository.deleteById(registration.getUserId());
                 logger.debug("User with id {} deleted before registration.", registration.getUserId());
             } catch (Exception e) {
+                try {
+                    registrationRepository.save(registration);
+                } catch (Exception unused) {}
                 logger.error("User with id {} was not deleted before registration, will try again in 20 minutes.", registration.getUserId(), e);
             }
         }

@@ -52,6 +52,12 @@ public class User {
     @JsonProperty(access = WRITE_ONLY)
     private List<AgentListing> listings;
 
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    @JsonProperty(access = WRITE_ONLY)
+    private List<Offer> offers;
+
     @Column(name = "is_active", columnDefinition = "BOOLEAN DEFAULT TRUE")
     private boolean isActive;
     public String getUserId() {
@@ -116,5 +122,13 @@ public class User {
 
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public List<Offer> getOffers() {
+        return offers;
+    }
+
+    public void setOffers(List<Offer> offers) {
+        this.offers = offers;
     }
 }

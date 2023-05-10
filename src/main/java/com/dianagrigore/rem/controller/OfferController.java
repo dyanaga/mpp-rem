@@ -42,7 +42,7 @@ public class OfferController implements OfferApi {
 
     @Override
     @PermissionCheck(hasAny = {UserType.CLIENT, UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
-    public OfferDto deleteOffer(String offerId) {
+    public OfferDto deleteOffer(String offerId, String userId) {
         return offerService.deleteOffer(offerId);
     }
 }

@@ -37,7 +37,7 @@ import java.util.Optional;
 public class OfferServiceImpl implements OfferService {
     private static final Logger logger = LoggerFactory.getLogger(OfferServiceImpl.class);
 
-    private static final List<String> FIND_ALLOWED_STRING_FILTERS = List.of();
+    private static final List<String> FIND_ALLOWED_STRING_FILTERS = List.of("comment");
     private final OfferRepository offerRepository;
     private final UserRepository userRepository;
     private final ListingRepository listingRepository;
