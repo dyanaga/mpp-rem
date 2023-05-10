@@ -19,7 +19,6 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/v1")
-
 public class InitializationController {
 
     private final AuthorizationService authorizationService;

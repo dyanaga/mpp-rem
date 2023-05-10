@@ -6,7 +6,6 @@ import com.dianagrigore.rem.dto.pages.UserPage;
 import com.dianagrigore.rem.model.enums.UserType;
 import com.dianagrigore.rem.permissions.PermissionCheck;
 import com.dianagrigore.rem.service.user.UserService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +16,6 @@ import javax.validation.constraints.Pattern;
 
 @RestController
 @RequestMapping("/v1")
-@CrossOrigin
 public class UserController implements UserApi {
 
     private final UserService userService;

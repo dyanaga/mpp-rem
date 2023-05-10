@@ -1,14 +1,12 @@
 package com.dianagrigore.rem.controller;
 
 import com.dianagrigore.rem.service.DataGenerationService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/generate")
-@CrossOrigin
 public class Generator {
 
     private final DataGenerationService dataGenerationService;

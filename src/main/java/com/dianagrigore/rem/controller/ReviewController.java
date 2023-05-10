@@ -6,13 +6,11 @@ import com.dianagrigore.rem.dto.pages.ReviewPage;
 import com.dianagrigore.rem.model.enums.UserType;
 import com.dianagrigore.rem.permissions.PermissionCheck;
 import com.dianagrigore.rem.service.review.ReviewService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1")
-@CrossOrigin
 public class ReviewController implements ReviewApi {
 
     private final ReviewService reviewService;

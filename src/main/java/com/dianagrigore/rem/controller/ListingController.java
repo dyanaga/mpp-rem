@@ -6,7 +6,6 @@ import com.dianagrigore.rem.dto.pages.ListingPage;
 import com.dianagrigore.rem.model.enums.UserType;
 import com.dianagrigore.rem.permissions.PermissionCheck;
 import com.dianagrigore.rem.service.listing.ListingService;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +16,6 @@ import javax.validation.constraints.Pattern;
 
 @RestController
 @RequestMapping("/v1")
-@CrossOrigin
 public class ListingController implements ListingApi {
 
     private final ListingService listingService;
