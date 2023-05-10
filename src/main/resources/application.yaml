@@ -11,7 +11,7 @@ spring:
         jdbc:
           batch_size: 1000
         connection:
-          pool_size: 11
+          pool_size: 20
     open-in-view: true
   datasource:
     url: jdbc:postgresql://cluj.olahistvan.com:5432/rem
