@@ -5,6 +5,7 @@ import static java.util.Objects.isNull;
 import com.dianagrigore.rem.dto.RegistrationDto;
 import com.dianagrigore.rem.dto.UserDto;
 import com.dianagrigore.rem.dto.pages.UserPage;
+import com.dianagrigore.rem.dto.token.AuthenticationType;
 import com.dianagrigore.rem.exception.BaseException;
 import com.dianagrigore.rem.exception.ResourceNotFoundException;
 import com.dianagrigore.rem.model.Registration;
@@ -72,9 +73,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(@Valid UserDto userToCreate) {
         logger.debug("Started to create user.");
-        if (UserType.ADMIN.equals(userToCreate.getType()) || UserType.GUEST.equals(userToCreate.getType())) {
-            throw new BaseException("Unable to create guest or admin account.");
+        if (UserType.GUEST.equals(userToCreate.getType())) {
+            throw new BaseException("Unable to create guest account.");
         }
+        if (UserType.ADMIN.equals(userToCreate.getType()) && !securityService.getAuthenticationType().equals(AuthenticationType.ADMIN)) {
+            throw new BaseException("Unable to create admin account.");
+        }
+
         if (isNull(userToCreate.getPassword())) {
             throw new BaseException("No password given.");
         }
