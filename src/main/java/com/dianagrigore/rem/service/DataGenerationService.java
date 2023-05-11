@@ -1,10 +1,10 @@
 package com.dianagrigore.rem.service;
 
+import com.dianagrigore.rem.dto.UserDto;
 import com.dianagrigore.rem.exception.BaseException;
 import com.dianagrigore.rem.model.Listing;
 import com.dianagrigore.rem.model.Offer;
 import com.dianagrigore.rem.model.Review;
-import com.dianagrigore.rem.model.User;
 import com.dianagrigore.rem.model.enums.UserType;
 import com.github.javafaker.Faker;
 import lombok.extern.slf4j.Slf4j;
@@ -109,20 +109,38 @@ public class DataGenerationService {
     private void generate(int base) {
         int count = 1000;
         int phoneBase = 700000000;
-        String sql = "INSERT INTO app_user (user_id, name, email, password, phone_number, type) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO app_user (user_id, name, email, phone_number, bio, location, gender, birthday, url, page_preference, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, " +
+                "?, ?)";
         List<Object[]> users = new ArrayList<>();
-        User user = new User();
+        List<Object[]> logins = new ArrayList<>();
+        UserDto user = new UserDto();
         for (int i = 0; i < count; i++) {
             user.setName(faker.name().fullName());
-            user.setEmail(faker.name().username() + (base + i) + "@gmail.com");
+            String username = faker.name().username() + (base + i);
+            user.setEmail(username + "@gmail.com");
             user.setPassword("nJ8IjYf4+Iz4SFkkYqaRhw==");
+            user.setUsername(username);
             user.setPhoneNumber("0" + (phoneBase + base + i));
             user.setType(UserType.DIRECTOR);
-            users.add(new Object[]{UUID.randomUUID().toString(), user.getName(), user.getEmail(), user.getPassword(), user.getPhoneNumber(), user.getType().toString()});
+            user.setBio(faker.princessBride().quote());
+            user.setGender(faker.funnyName().name());
+            user.setBirthday(faker.date().birthday());
+            user.setLocation(faker.address().city());
+            user.setUrl("https://" + faker.internet().domainName());
+            user.setPagePreference(faker.number().numberBetween(10, 55));
+            String id = UUID.randomUUID().toString();
+            users.add(new Object[]{id, user.getName(), user.getEmail(), user.getPhoneNumber(), user.getBio(), user.getLocation(), user.getGender(),
+                    user.getBirthday(), user.getUrl(), user.getPagePreference(), user.getType().toString()});
+            logins.add(new Object[]{id, user.getUsername(), user.getPassword(), new Date(), true});
+
         }
         jdbcTemplate.batchUpdate(sql, users);
 
-        sql = "INSERT INTO listing (listing_id, name, address, rooms, description, size, neighbourhood, suggested_price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        sql = "INSERT INTO user_login (user_login_id, username, password, timestamp, is_active) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.batchUpdate(sql, logins);
+
+
+        sql = "INSERT INTO listing (listing_id, name, address, rooms, description, size, neighbourhood, suggested_price, creator) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         List<Object[]> listings = new ArrayList<>();
         Listing listing = new Listing();
         for (int i = 0; i < count; i++) {
@@ -133,8 +151,9 @@ public class DataGenerationService {
             listing.setSize(faker.number().numberBetween(20, 120));
             listing.setNeighbourhood(neighbourhood.get(faker.number().numberBetween(0, 9)));
             listing.setAddress(faker.address().fullAddress());
+            listing.setCreator(users.get(faker.number().numberBetween(0, 1000))[0].toString());
             listings.add(new Object[]{UUID.randomUUID().toString(), listing.getName(), listing.getAddress(), listing.getRooms(), listing.getDescription(), listing.getSize(),
-                    listing.getNeighbourhood(), listing.getSuggestedPrice()});
+                    listing.getNeighbourhood(), listing.getSuggestedPrice(), listing.getCreator()});
         }
         jdbcTemplate.batchUpdate(sql, listings);
 
@@ -168,7 +187,7 @@ public class DataGenerationService {
         }
         jdbcTemplate.batchUpdate(sql, offers);
 
-        sql = "INSERT INTO review (review_id, stars, review, timestamp, user_id) VALUES (?, ?, ?, ?, ?)";
+        sql = "INSERT INTO review (review_id, stars, review, timestamp, user_id, creator) VALUES (?, ?, ?, ?, ?, ?)";
 
         List<Object[]> reviews = new ArrayList<>();
         Review review = new Review();
@@ -177,7 +196,8 @@ public class DataGenerationService {
             review.setReview(faker.elderScrolls().quote());
             review.setStars(faker.number().numberBetween(1, 5));
             review.setTimestamp(new Date());
-            reviews.add(new Object[]{UUID.randomUUID().toString(), review.getStars(), review.getReview(), review.getTimestamp(), users.get(agent)[0]});
+            review.setCreator(users.get(faker.number().numberBetween(0, 1000))[0].toString());
+            reviews.add(new Object[]{UUID.randomUUID().toString(), review.getStars(), review.getReview(), review.getTimestamp(), users.get(agent)[0], review.getCreator()});
         }
         jdbcTemplate.batchUpdate(sql, reviews);
     }

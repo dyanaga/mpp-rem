@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.List;
@@ -44,6 +45,14 @@ public class Listing {
 
     @Column
     private int suggestedPrice = 0;
+
+    @Column(nullable = false)
+    private String creator;
+
+    @ManyToOne
+    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    @JsonProperty(access = WRITE_ONLY)
+    User creatorUser;
 
     @OneToMany
     @JoinColumn(name = "listing_id")
@@ -132,5 +141,21 @@ public class Listing {
 
     public void setOffers(List<Offer> offers) {
         this.offers = offers;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public User getCreatorUser() {
+        return creatorUser;
+    }
+
+    public void setCreatorUser(User creatorUser) {
+        this.creatorUser = creatorUser;
     }
 }

@@ -9,7 +9,9 @@ import com.dianagrigore.rem.dto.token.TokenInformation;
 import com.dianagrigore.rem.exception.LoginException;
 import com.dianagrigore.rem.exception.PermissionDeniedException;
 import com.dianagrigore.rem.model.User;
+import com.dianagrigore.rem.model.UserLogin;
 import com.dianagrigore.rem.model.enums.UserType;
+import com.dianagrigore.rem.repository.UserLoginRepository;
 import com.dianagrigore.rem.repository.UserRepository;
 import com.dianagrigore.rem.security.SecurityService;
 import com.dianagrigore.rem.security.TokenService;
@@ -26,6 +28,7 @@ public class AuthorizationService {
 
     private static final String GUEST = "GUEST";
     private final UserRepository userRepository;
+    private final UserLoginRepository userLoginRepository;
 
     private final TokenService tokenService;
     private final SecurityService securityService;
@@ -33,9 +36,10 @@ public class AuthorizationService {
     private final BasicMapper<User, UserDto> userMapper;
     private final PasswordEncryptor passwordEncryptor;
 
-    public AuthorizationService(UserRepository userRepository, TokenService tokenService, SecurityService securityService, SecurityProperties securityProperties,
+    public AuthorizationService(UserRepository userRepository, UserLoginRepository userLoginRepository, TokenService tokenService, SecurityService securityService, SecurityProperties securityProperties,
             BasicMapper<User, UserDto> userMapper, PasswordEncryptor passwordEncryptor) {
         this.userRepository = userRepository;
+        this.userLoginRepository = userLoginRepository;
         this.tokenService = tokenService;
         this.securityService = securityService;
         this.securityProperties = securityProperties;
@@ -55,9 +59,9 @@ public class AuthorizationService {
         }
 
         try {
-            List<User> users = userRepository.login(loginUser.getLoginId(), loginUser.getPassword());
+            List<UserLogin> users = userLoginRepository.login(loginUser.getLoginId(), loginUser.getPassword());
             if (users.size() == 1) {
-                User user = users.get(0);
+                User user = users.get(0).getUser();
                 return tokenService.generateToken(user.getUserId(), user.getType().toString());
             } else if (users.size() > 1) {
                 throw new LoginException("More than 1 user with this loginId and password! Contact administrator.");

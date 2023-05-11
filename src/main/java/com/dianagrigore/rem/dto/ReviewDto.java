@@ -26,4 +26,5 @@ public class ReviewDto {
     private Date timestamp;
 
     private UserDto user;
+    private UserDto creatorUser;
 }

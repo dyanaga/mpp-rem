@@ -12,4 +12,8 @@ public interface ReviewRepository extends JpaRepository<Review, String>, JpaSpec
     @Modifying
     @Transactional
     void deleteByUserId(String userId);
+
+    @Modifying
+    @Transactional
+    void deleteByCreator(String userId);
 }

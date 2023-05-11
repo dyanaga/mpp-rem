@@ -5,12 +5,11 @@ import static java.util.Objects.nonNull;
 import com.dianagrigore.rem.dto.ReviewDto;
 import com.dianagrigore.rem.dto.pages.ReviewPage;
 import com.dianagrigore.rem.exception.ResourceNotFoundException;
-import com.dianagrigore.rem.model.Listing;
 import com.dianagrigore.rem.model.Review;
 import com.dianagrigore.rem.model.User;
-import com.dianagrigore.rem.repository.ListingRepository;
 import com.dianagrigore.rem.repository.ReviewRepository;
 import com.dianagrigore.rem.repository.UserRepository;
+import com.dianagrigore.rem.security.SecurityService;
 import com.dianagrigore.rem.service.review.ReviewService;
 import com.dianagrigore.rem.utils.expand.ExpandBuilder;
 import com.dianagrigore.rem.utils.expand.ExpandableFields;
@@ -42,13 +41,13 @@ public class ReviewServiceImpl implements ReviewService {
     private static final List<String> FIND_ALLOWED_INTEGER_FILTERS = List.of("stars");
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
-    private final ListingRepository agentRepository;
+    private final SecurityService securityService;
     private final BasicMapper<Review, ReviewDto> basicMapper;
 
-    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, ListingRepository agentRepository, BasicMapper<Review, ReviewDto> basicMapper) {
+    public ReviewServiceImpl(ReviewRepository reviewRepository, UserRepository userRepository, SecurityService securityService, BasicMapper<Review, ReviewDto> basicMapper) {
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
-        this.agentRepository = agentRepository;
+        this.securityService = securityService;
         this.basicMapper = basicMapper;
     }
 
@@ -58,6 +57,7 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = basicMapper.convertTarget(reviewToCreate);
         User user = getUserOrThrow(agentId);
         review.setUser(user);
+        review.setCreator(securityService.getUserId());
         review.setUserId(user.getUserId());
 
         Review savedReview = reviewRepository.save(review);

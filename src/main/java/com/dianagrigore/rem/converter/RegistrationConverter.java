@@ -2,13 +2,13 @@ package com.dianagrigore.rem.converter;
 
 
 import com.dianagrigore.rem.dto.RegistrationDto;
-import com.dianagrigore.rem.model.Registration;
+import com.dianagrigore.rem.model.UserLogin;
 import com.dianagrigore.rem.web.converter.BasicMapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RegistrationConverter extends BasicMapper<Registration, RegistrationDto> {
+public class RegistrationConverter extends BasicMapper<UserLogin, RegistrationDto> {
 
     private final ObjectMapper objectMapper;
 
@@ -17,12 +17,12 @@ public class RegistrationConverter extends BasicMapper<Registration, Registratio
     }
 
     @Override
-    public RegistrationDto convertSource(Registration Registration, String expand) {
-        return objectMapper.convertValue(Registration, RegistrationDto.class);
+    public RegistrationDto convertSource(UserLogin UserLogin, String expand) {
+        return objectMapper.convertValue(UserLogin, RegistrationDto.class);
     }
 
     @Override
-    public Registration convertTarget(RegistrationDto RegistrationDto) {
-        return objectMapper.convertValue(RegistrationDto, Registration.class);
+    public UserLogin convertTarget(RegistrationDto RegistrationDto) {
+        return objectMapper.convertValue(RegistrationDto, UserLogin.class);
     }
 }

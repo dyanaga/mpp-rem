@@ -10,5 +10,6 @@ import java.util.Date;
 public class RegistrationDto {
 
     private String userId;
+
     private Date timestamp;
 }

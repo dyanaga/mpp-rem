@@ -25,6 +25,9 @@ public class ReviewConverter extends BasicMapper<Review, ReviewDto> {
         if (expandBuilder.contains(ExpandableFields.USER)) {
             reviewDto.setUser(objectMapper.convertValue(review.getUser(), UserDto.class));
         }
+        if (expandBuilder.contains(ExpandableFields.CREATOR)) {
+            reviewDto.setCreatorUser(objectMapper.convertValue(review.getCreatorUser(), UserDto.class));
+        }
         return reviewDto;
     }
 

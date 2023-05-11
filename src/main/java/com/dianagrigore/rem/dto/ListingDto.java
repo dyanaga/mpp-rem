@@ -39,6 +39,7 @@ public class ListingDto {
     private int suggestedPrice = 0;
 
     private List<UserDto> users;
+    private UserDto creatorUser;
     private List<OfferDto> offers;
 
 }

@@ -68,6 +68,7 @@ public class ListingServiceImpl implements ListingService {
         logger.debug("Started to create listing.");
         Listing listing = basicMapper.convertTarget(listingToCreate);
         listing.setUsers(null);
+        listing.setCreator(securityService.getUserId());
         Listing savedListing = listingRepository.save(listing);
         String agentId = securityService.getUserId();
         User user = getUserOrThrow(agentId);

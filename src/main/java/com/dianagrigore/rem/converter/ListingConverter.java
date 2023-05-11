@@ -29,6 +29,9 @@ public class ListingConverter extends BasicMapper<Listing, ListingDto> {
             List<UserDto> users = listing.getUsers().stream().map(agentListing -> objectMapper.convertValue(agentListing.getUser(), UserDto.class)).toList();
             listingDto.setUsers(users);
         }
+        if (expandBuilder.contains(ExpandableFields.CREATOR)) {
+            listingDto.setCreatorUser(objectMapper.convertValue(listing.getCreatorUser(), UserDto.class));
+        }
         if (expandBuilder.contains(ExpandableFields.OFFERS)) {
             List<OfferDto> offers = listing.getOffers().stream().map(offer -> {
                 OfferDto offerDto = objectMapper.convertValue(offer, OfferDto.class);

@@ -7,10 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, String>, JpaSpecificationExecutor<User> {
-    @Query(value = "SELECT u FROM app_user u WHERE email=:loginId AND password=:password AND is_active=true")
-    List<User> login(@Param("loginId") String loginId, @Param("password") String password);
-
-    List<User> findAllByEmail(String email);
+    Optional<User> findFirstByEmail(String email);
 }

@@ -45,6 +45,15 @@ public class Review {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     @JsonProperty(access = WRITE_ONLY)
     private User user;
+
+    @Column(nullable = false)
+    private String creator;
+
+    @ManyToOne
+    @JoinColumn(name = "creator", insertable = false, updatable = false)
+    @JsonProperty(access = WRITE_ONLY)
+    private User creatorUser;
+
     public String getReviewId() {
         return reviewId;
     }
@@ -91,5 +100,21 @@ public class Review {
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public User getCreatorUser() {
+        return creatorUser;
+    }
+
+    public void setCreatorUser(User creatorUser) {
+        this.creatorUser = creatorUser;
     }
 }
