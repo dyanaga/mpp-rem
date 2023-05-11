@@ -2,7 +2,7 @@
 <configuration>
 	<include resource="org/springframework/boot/logging/logback/defaults.xml" />
 	<!-- FILE Appender -->
-	<property name="LOG_FILE" value="./logs/rem.log"/>
+	<property name="LOG_FILE" value="/tmp/logs/rem.log"/>
 	<springProperty name="socket.appender.host" source="logging.logstash.socket.appender.host"/>
 	<springProperty name="socket.appender.port" source="logging.logstash.socket.appender.port"/>
 
