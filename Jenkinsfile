@@ -21,7 +21,7 @@ pipeline {
       steps {
         script {
             if (env.BRANCH_NAME == 'main') {
-                sh "docker-compose up -d --force-recreate --build"
+                sh "docker build -t rem_be ."
             } else {
                 def userInput = false
                 try {
@@ -44,7 +44,7 @@ pipeline {
                 echo "Selected deployment option: ${userInput}"
 
                 if(userInput) {
-                    sh "docker-compose up -d --force-recreate --build"
+                    sh "docker build -t rem_be ."
                 }
             }
         }

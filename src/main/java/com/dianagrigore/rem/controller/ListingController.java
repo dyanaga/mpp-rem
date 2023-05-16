@@ -42,6 +42,7 @@ public class ListingController implements ListingApi {
     }
 
     @Override
+    @PermissionCheck(hasAny = {UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
     public ListingDto updateListing(String listingId, @Valid ListingDto listingWithUpdates) {
         return listingService.updateListing(listingId, listingWithUpdates);
     }

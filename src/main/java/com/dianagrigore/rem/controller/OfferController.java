@@ -26,16 +26,19 @@ public class OfferController implements OfferApi {
     }
 
     @Override
+    @PermissionCheck(hasAny = {UserType.CLIENT, UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
     public OfferPage findOffersForListing(String listingId, String filter, Integer page, Integer pageSize, String sort, String expand) {
         return offerService.findOffersForListing(listingId, filter, page, pageSize, sort, expand);
     }
 
     @Override
+    @PermissionCheck(hasAny = {UserType.CLIENT, UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
     public OfferPage findOffersForUser(String userId, String filter, Integer page, Integer pageSize, String sort, String expand) {
         return offerService.findOffersForUser(userId, filter, page, pageSize, sort, expand);
     }
 
     @Override
+    @PermissionCheck(hasAny = {UserType.CLIENT, UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
     public OfferDto getOffer(String offerId) {
         return offerService.getOffer(offerId);
     }
