@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://rem-db:5432/rem
+    url: jdbc:postgresql://localhost:30432/rem
     username: rem
     password: rem
 
