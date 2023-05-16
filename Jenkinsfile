@@ -1,8 +1,5 @@
 pipeline {
   agent any
-  parameters {
-    string(name: 'image_version', defaultValue: 'undefined')
-  }
 
   stages {
     stage('Initialize') {
@@ -17,11 +14,17 @@ pipeline {
       }
     }
 
+    stage('Dockerizing') {
+      steps {
+           sh "docker build -t rem_fe ."
+        }
+    }
+
     stage('Deployment') {
       steps {
         script {
             if (env.BRANCH_NAME == 'main') {
-                sh "docker build -t rem_be ."
+                sh "kubectl rollout restart deployment rem-be-deployment"
             } else {
                 def userInput = false
                 try {
@@ -44,7 +47,7 @@ pipeline {
                 echo "Selected deployment option: ${userInput}"
 
                 if(userInput) {
-                    sh "docker build -t rem_be ."
+                    sh "kubectl rollout restart deployment rem-be-deployment"
                 }
             }
         }
