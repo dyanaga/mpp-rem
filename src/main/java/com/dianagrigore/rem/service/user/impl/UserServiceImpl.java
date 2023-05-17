@@ -92,7 +92,6 @@ public class UserServiceImpl implements UserService {
 
         UserLogin userLogin = new UserLogin();
         userLogin.setUserId(savedUser.getUserId());
-        userLogin.setUser(savedUser);
         userLogin.setUsername(userToCreate.getUsername());
         userLogin.setPassword(userToCreate.getPassword());
         userLogin.setActive(true);
