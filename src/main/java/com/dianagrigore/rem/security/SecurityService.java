@@ -44,7 +44,7 @@ public class SecurityService {
             Optional<User> maybeUser = userJpaRepository.findById(userId);
             if (maybeUser.isPresent()) {
                 User user = maybeUser.get();
-                if (UserType.DIRECTOR.equals(user.getType()) || hasAny.contains(user.getType())) {
+                if (UserType.ADMIN.equals(user.getType()) || hasAny.contains(user.getType())) {
                     return;
                 }
                 logger.warn("Resource with signature [{}] was denied for [{}] because does not have all the required permissions.",
