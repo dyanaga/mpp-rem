@@ -16,7 +16,7 @@ pipeline {
 
     stage('Dockerizing') {
       steps {
-           sh "docker build -t rem_fe ."
+           sh "docker build -t rem_be ."
         }
     }
 
