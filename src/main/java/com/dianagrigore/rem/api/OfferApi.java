@@ -33,6 +33,37 @@ public interface OfferApi {
     String DELETE_OFFER_USER = "/users/{user-id}/offers/{offer-id}";
 
     /**
+     * Search offer for listing using a filter and pagination parameters
+     *
+     * @param filter    - basic FIQL filter, might be null
+     * @param page      - desired page, might be null and default will be 0.
+     * @param pageSize  - desired page size, might be null and default will be 100.
+     * @param sort      - direction of the sort, might be null, but default will be name ascending.
+     * @param expand    - the subfields that needs to be expanded (i.e. "account" or "account,card")
+     * @return - paged offers by filter and having desired pagination.
+     * @apiNote - GET /listings/{listing-id}/offers
+     */
+    @ApiOperation(value = "Returns paged response of Offers for listing", nickname = "findOffers", notes = "Endpoint used to return all offers items.", response =
+            OfferPage.class, tags = {
+            "offers",})
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "Offers paged items.", response = OfferPage.class), @ApiResponse(code = 400, message = "unexpected error", response =
+            ResponseException.class)})
+    @RequestMapping(value = FIND_OFFERS, produces = {"application/json"}, method = RequestMethod.GET)
+    default OfferPage findOffers(@ApiParam(value = "Basic FIQL filter") @Valid @RequestParam(required = false) String filter,
+
+            @Min(0) @ApiParam(value = "The index of the desired page.", defaultValue = "0") @Valid @RequestParam(required = false, defaultValue = "0") Integer page,
+
+            @Min(1) @Max(200) @ApiParam(value = "The size of the page, total number of items displayed for a page", defaultValue = "100") @Valid @RequestParam(required = false,
+                    defaultValue = "100") Integer pageSize,
+
+            @Pattern(regexp = "[+-]\\w+(,[+-]\\w+)*") @ApiParam(value = "Attributes to sort by, something like +attribute.name") @Valid @RequestParam(required = false) String sort,
+
+            @Pattern(regexp = "\\w+(,\\w+)*") @ApiParam(value = "Attributes to expand, something like 'account' ") @Valid @RequestParam(required = false) String expand) {
+
+        return OfferPage.EMPTY;
+    }
+
+    /**
      * Creates a new offer.
      *
      * @param listingId - id of the listing
@@ -54,37 +85,6 @@ public interface OfferApi {
 
     default OfferDto updateOffer(@PathVariable(value = "user-id", required = false) String userId, @PathVariable("offer-id") String offerId, @Valid @RequestBody OfferDto offer) {
         return new OfferDto();
-    }
-
-    /**
-     * Search offer for listing using a filter and pagination parameters
-     *
-     * @param filter    - basic FIQL filter, might be null
-     * @param page      - desired page, might be null and default will be 0.
-     * @param pageSize  - desired page size, might be null and default will be 100.
-     * @param sort      - direction of the sort, might be null, but default will be name ascending.
-     * @param expand    - the subfields that needs to be expanded (i.e. "account" or "account,card")
-     * @return - paged offers by filter and having desired pagination.
-     * @apiNote - GET /listings/{listing-id}/offers
-     */
-    @ApiOperation(value = "Returns paged response of Offers for listing", nickname = "findOffersForListing", notes = "Endpoint used to return all offers items.", response =
-            OfferPage.class, tags = {
-            "offers",})
-    @ApiResponses(value = {@ApiResponse(code = 200, message = "Offers paged items.", response = OfferPage.class), @ApiResponse(code = 400, message = "unexpected error", response =
-            ResponseException.class)})
-    @RequestMapping(value = FIND_OFFERS, produces = {"application/json"}, method = RequestMethod.GET)
-    default OfferPage findOffers(@ApiParam(value = "Basic FIQL filter") @Valid @RequestParam(required = false) String filter,
-
-            @Min(0) @ApiParam(value = "The index of the desired page.", defaultValue = "0") @Valid @RequestParam(required = false, defaultValue = "0") Integer page,
-
-            @Min(1) @Max(200) @ApiParam(value = "The size of the page, total number of items displayed for a page", defaultValue = "100") @Valid @RequestParam(required = false,
-                    defaultValue = "100") Integer pageSize,
-
-            @Pattern(regexp = "[+-]\\w+(,[+-]\\w+)*") @ApiParam(value = "Attributes to sort by, something like +attribute.name") @Valid @RequestParam(required = false) String sort,
-
-            @Pattern(regexp = "\\w+(,\\w+)*") @ApiParam(value = "Attributes to expand, something like 'account' ") @Valid @RequestParam(required = false) String expand) {
-
-        return OfferPage.EMPTY;
     }
 
     /**

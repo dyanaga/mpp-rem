@@ -19,6 +19,13 @@ public class OfferController implements OfferApi {
         this.offerService = offerService;
     }
 
+
+    @Override
+    @PermissionCheck(hasAny = {UserType.DIRECTOR, UserType.ADMIN})
+    public OfferPage findOffers(String filter, Integer page, Integer pageSize, String sort, String expand) {
+        return offerService.findOffers(filter, page, pageSize, sort, expand);
+    }
+
     @Override
     @PermissionCheck(hasAny = {UserType.CLIENT, UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
     public OfferDto createOffer(String listingId, OfferDto offer) {
@@ -31,11 +38,6 @@ public class OfferController implements OfferApi {
         return offerService.updateOffer(userId, offerId, offer);
     }
 
-    @Override
-    @PermissionCheck(hasAny = {UserType.DIRECTOR, UserType.ADMIN})
-    public OfferPage findOffers(String filter, Integer page, Integer pageSize, String sort, String expand) {
-        return offerService.findOffers(filter, page, pageSize, sort, expand);
-    }
 
     @Override
     @PermissionCheck(hasAny = {UserType.CLIENT, UserType.AGENT, UserType.DIRECTOR, UserType.ADMIN})
