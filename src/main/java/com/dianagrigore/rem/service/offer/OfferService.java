@@ -21,6 +21,8 @@ public interface OfferService {
      */
     OfferDto createOffer(@NonNull String listingId, @Valid OfferDto offerToCreate);
 
+    OfferDto updateOffer(String userId, @NonNull String offerId, @Valid OfferDto offerToCreate);
+
     /**
      * Search offer for listing using a filter and pagination parameters
      *
@@ -32,7 +34,7 @@ public interface OfferService {
      * @param expand    - the subfields that needs to be expanded (i.e. "account" or "account,card")
      * @return - paged offers by filter and having desired pagination.
      */
-    OfferPage findOffersForListing(@NonNull String listingId, @Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize, @Nullable String sort,
+    OfferPage findOffers(@Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize, @Nullable String sort,
             @Nullable String expand);
 
     /**

@@ -57,4 +57,10 @@ public class UserController implements UserApi {
         return userService.deleteUser(userId);
     }
 
+    @Override
+    @PermissionCheck(hasAny = {UserType.ADMIN})
+    public void setPagePreference(int pagePreference) {
+        userService.setPagePreferenceForAllUsers(pagePreference);
+    }
+
 }

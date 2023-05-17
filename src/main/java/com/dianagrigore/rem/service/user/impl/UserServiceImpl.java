@@ -258,6 +258,11 @@ public class UserServiceImpl implements UserService {
         return basicMapper.convertSource(user);
     }
 
+    @Override
+    public void setPagePreferenceForAllUsers(int pagePreference) {
+        userRepository.setPagePreferenceForAllUsers(pagePreference);
+    }
+
     private User getUserOrThrow(@NonNull String userId) {
         Optional<User> maybeUser = userRepository.findById(userId);
         if (maybeUser.isEmpty()) {

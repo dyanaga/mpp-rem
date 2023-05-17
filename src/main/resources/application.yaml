@@ -16,9 +16,9 @@ spring:
           pool_size: 20
     open-in-view: true
   datasource:
-    url: jdbc:postgresql://aws.dianagrigore.com:5432/rem
-    username: postgres
-    password: example
+    url: jdbc:postgresql://localhost:5432/rem
+    username: rem
+    password: rem
   sql:
     init:
       platform: postgres

@@ -1,7 +1,13 @@
 package com.dianagrigore.rem.service.offer.impl;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.dianagrigore.rem.dto.OfferDto;
 import com.dianagrigore.rem.dto.pages.OfferPage;
+import com.dianagrigore.rem.dto.token.AuthenticationType;
+import com.dianagrigore.rem.exception.BaseException;
+import com.dianagrigore.rem.exception.PermissionDeniedException;
 import com.dianagrigore.rem.exception.ResourceNotFoundException;
 import com.dianagrigore.rem.model.Listing;
 import com.dianagrigore.rem.model.Offer;
@@ -29,8 +35,10 @@ import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -72,9 +80,26 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public OfferPage findOffersForListing(@NonNull String listingId, @Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize, @Nullable String sort,
+    public OfferDto updateOffer(String userId, String offerId, OfferDto offerToCreate) {
+        Offer offer = getOfferOrThrow(offerId);
+        AuthenticationType authenticationType = securityService.getAuthenticationType();
+        if(nonNull(userId) && !Objects.equals(offer.getUserId(), userId)) {
+            throw new BaseException("Cannot update for different user!");
+        }
+        if(isNull(userId) && !(AuthenticationType.ADMIN.equals(authenticationType) || AuthenticationType.DIRECTOR.equals(authenticationType)))  {
+            throw new PermissionDeniedException("Cannot access this resource.");
+        }
+        offer.setPrice(offerToCreate.getPrice());
+        offer.setComment(offerToCreate.getComment());
+        offer.setTimestamp(new Date());
+        Offer savedOffer = offerRepository.save(offer);
+        return basicMapper.convertSource(savedOffer, ExpandBuilder.of(ExpandableFields.USER).and(ExpandableFields.LISTING).toString());
+    }
+
+    @Override
+    public OfferPage findOffers(@Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize, @Nullable String sort,
             @Nullable String expand) {
-        return findOffers(StringSpecifications.fieldEquals("listingId", listingId), filter, page, pageSize, sort, expand);
+        return findOffers(null, filter, page, pageSize, sort, expand);
     }
 
     @Override
@@ -83,14 +108,14 @@ public class OfferServiceImpl implements OfferService {
         return findOffers(StringSpecifications.fieldEquals("userId", userId), filter, page, pageSize, sort, expand);
     }
 
-    private OfferPage findOffers(@NonNull Specification<Offer> indexSpecification, @Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize,
+    private OfferPage findOffers(Specification<Offer> indexSpecification, @Nullable String filter, @Nullable Integer page, @Nullable Integer pageSize,
             @Nullable String sort, @Nullable String expand) {
         logger.debug("Find offers called with parameters: filter=[{}], page=[{}], pageSize=[{}], sort=[{}], expand=[{}]", filter, page, pageSize, sort, expand);
         Pageable pageable = PageUtils.getPageable(page, pageSize, sort, "-price");
         Map<String, FieldFilter> fieldFiltersMap = FilterUtils.getFieldFiltersMap(filter);
 
         List<Specification<Offer>> specifications = new ArrayList<>();
-        specifications.add(indexSpecification);
+        Optional.ofNullable(indexSpecification).ifPresent(specifications::add);
         StringSpecifications.appendSpecifications(specifications, fieldFiltersMap, FIND_ALLOWED_STRING_FILTERS);
 
         Specification<Offer> specification = specifications.stream().reduce(Specification::and).orElse(null);

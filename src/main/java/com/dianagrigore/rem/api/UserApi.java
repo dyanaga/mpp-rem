@@ -3,6 +3,8 @@ package com.dianagrigore.rem.api;
 import com.dianagrigore.rem.dto.UserDto;
 import com.dianagrigore.rem.dto.pages.UserPage;
 import com.dianagrigore.rem.exception.ResponseException;
+import com.dianagrigore.rem.model.enums.UserType;
+import com.dianagrigore.rem.permissions.PermissionCheck;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -29,6 +31,7 @@ public interface UserApi {
     String GET_USER_PROFILE = "/users/profile";
     String UPDATE_USER = "/users/{user-id}";
     String DEACTIVATE_USER = "/users/{user-id}";
+    String PAGE_SIZE = "/users-global/page-size/{page-size}";
 
     /**
      * Creates a new user.
@@ -141,4 +144,6 @@ public interface UserApi {
         return new UserDto();
     }
 
+    @RequestMapping(value = PAGE_SIZE, method = RequestMethod.POST)
+    void setPagePreference(@Min(1) @Max(100) @PathVariable("page-size") int pagePreference);
 }

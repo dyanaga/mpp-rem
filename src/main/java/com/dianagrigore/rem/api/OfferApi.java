@@ -24,10 +24,12 @@ import javax.validation.constraints.Pattern;
 @Api(value = "Offers")
 public interface OfferApi {
     String CREATE_OFFER = "/listings/{listing-id}/offers";
-    String LISTINGS_OFFERS = "/listings/{listing-id}/offers";
+    String FIND_OFFERS = "/offers";
     String USERS_OFFERS = "/users/{user-id}/offers";
     String GET_OFFER = "/offers/{offer-id}";
+    String UPDATE_OFFER = "/offers/{offer-id}";
     String DELETE_OFFER = "/offers/{offer-id}";
+    String UPDATE_OFFER_USER = "/users/{user-id}/offers/{offer-id}";
     String DELETE_OFFER_USER = "/users/{user-id}/offers/{offer-id}";
 
     /**
@@ -48,10 +50,15 @@ public interface OfferApi {
         return new OfferDto();
     }
 
+    @RequestMapping(value = {UPDATE_OFFER_USER, UPDATE_OFFER}, produces = {"application/json"}, consumes = {"application/json"}, method = RequestMethod.PUT)
+
+    default OfferDto updateOffer(@PathVariable(value = "user-id", required = false) String userId, @PathVariable("offer-id") String offerId, @Valid @RequestBody OfferDto offer) {
+        return new OfferDto();
+    }
+
     /**
      * Search offer for listing using a filter and pagination parameters
      *
-     * @param listingId - id of the listing
      * @param filter    - basic FIQL filter, might be null
      * @param page      - desired page, might be null and default will be 0.
      * @param pageSize  - desired page size, might be null and default will be 100.
@@ -65,9 +72,8 @@ public interface OfferApi {
             "offers",})
     @ApiResponses(value = {@ApiResponse(code = 200, message = "Offers paged items.", response = OfferPage.class), @ApiResponse(code = 400, message = "unexpected error", response =
             ResponseException.class)})
-    @RequestMapping(value = LISTINGS_OFFERS, produces = {"application/json"}, method = RequestMethod.GET)
-    default OfferPage findOffersForListing(@ApiParam(value = "The id of the listing.", required = true) @PathVariable("listing-id") String listingId,
-            @ApiParam(value = "Basic FIQL filter") @Valid @RequestParam(required = false) String filter,
+    @RequestMapping(value = FIND_OFFERS, produces = {"application/json"}, method = RequestMethod.GET)
+    default OfferPage findOffers(@ApiParam(value = "Basic FIQL filter") @Valid @RequestParam(required = false) String filter,
 
             @Min(0) @ApiParam(value = "The index of the desired page.", defaultValue = "0") @Valid @RequestParam(required = false, defaultValue = "0") Integer page,
 

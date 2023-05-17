@@ -84,5 +84,6 @@ public interface UserService {
      */
     UserDto deleteUser(@NonNull String userId);
 
+    void setPagePreferenceForAllUsers(int pagePreference);
 
 }
