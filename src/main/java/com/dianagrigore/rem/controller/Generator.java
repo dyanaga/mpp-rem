@@ -1,5 +1,7 @@
 package com.dianagrigore.rem.controller;
 
+import com.dianagrigore.rem.model.enums.UserType;
+import com.dianagrigore.rem.permissions.PermissionCheck;
 import com.dianagrigore.rem.service.DataGenerationService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,16 +18,19 @@ public class Generator {
     }
 
     @PostMapping("/cleanup")
+    @PermissionCheck(hasAny = {UserType.ADMIN})
     void cleanup() {
         dataGenerationService.cleanup();
     }
 
     @PostMapping("/batch")
+    @PermissionCheck(hasAny = {UserType.ADMIN})
     void generateBatch() {
         dataGenerationService.batch();
     }
 
     @PostMapping("/millions")
+    @PermissionCheck(hasAny = {UserType.ADMIN})
     void generateMillions() {
         dataGenerationService.millions();
     }
